@@ -128,3 +128,40 @@ def test_evaluate_log_probability_when_always_on_law_no_effect():
     log_prob = mixture.evaluate_log_probability(state, "action", State(attr=1))
     # Log probability should be close to 0
     assert np.isclose(log_prob, 0.0, rtol=0, atol=1e-3)
+
+
+@dataclass
+class SpawningState:
+    attr: int
+    spawned: int | None = None
+
+
+class SpawnAwareObservableExtractor(ObservableExtractor):
+    def get_observed_outcomes(self, state: SpawningState) -> dict[ObservableId, int]:
+        outcomes = super().get_observed_outcomes(state)
+        if state.spawned is not None:
+            outcomes[ObservableId("spawned")] = state.spawned
+        return outcomes
+
+
+def test_evaluate_log_probability_when_next_state_has_new_observable():
+    """
+    An observable that is absent from the previous state (e.g. a newly spawned
+    entity) and predicted by no law counts as a change, rather than raising.
+    """
+
+    mixture = LawMixture(
+        observable_extractor=SpawnAwareObservableExtractor(),
+        weighted_laws=[
+            WeightedLaw(
+                law=LawFunctionWrapper.from_non_runtime_created(AlwaysOnHasEffectLaw()),
+                weight=1.0,
+                is_fitted=True,
+            ),
+        ],
+    )
+
+    log_prob = mixture.evaluate_log_probability(
+        SpawningState(attr=0), "action", SpawningState(attr=1, spawned=1)
+    )
+    assert np.isclose(log_prob, -1.0, rtol=0, atol=1e-3)

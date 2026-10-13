@@ -251,8 +251,12 @@ class LawMixture(Generic[SymbolicStateT, ActionT]):
             else:
                 # Add an implicit prior that the value has not changed.
                 # If the value _did_ change, we will add a small negative
-                # penalty to the log probability.
-                if observed_value != previous_observed_values[attr_name]:
+                # penalty to the log probability. An attribute absent from the
+                # previous state (e.g. a newly spawned entity) counts as changed.
+                if (
+                    attr_name not in previous_observed_values
+                    or observed_value != previous_observed_values[attr_name]
+                ):
                     total_log_prob += -1.0
 
         return total_log_prob
