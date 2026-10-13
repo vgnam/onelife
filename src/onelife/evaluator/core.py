@@ -50,7 +50,7 @@ from typing_extensions import Self
 from typing import TypeAlias, Mapping, Sequence
 from typing_extensions import assert_never
 import itertools
-from typing import Iterable, Literal
+from typing import Callable, Iterable, Literal
 
 SymbolicStateT = TypeVar("SymbolicStateT")
 SymbolicStateT_contra = TypeVar("SymbolicStateT_contra", contravariant=True)
@@ -216,6 +216,9 @@ class EvaluationContext(Generic[SymbolicStateT, ActionT_contra]):
     distractor_generator: DistractorGenerator[SymbolicStateT, ActionT_contra]
     edit_distance_calculator: EditDistanceCalculator[SymbolicStateT]
     config: EvaluationConfig
+    # Default preserves native full-state equality. Observational benchmarks
+    # can supply the same projection used by their likelihood scorer.
+    state_equivalence: Callable[[SymbolicStateT, SymbolicStateT], bool] | None = None
 
 
 @dataclass(frozen=True)
@@ -304,27 +307,13 @@ class Evaluator(Generic[SymbolicStateT, ActionT]):
         # are the same, we could wrongly penalize the model for picking
         # the predicted state instead of the true state.
         max_prob_candidate, chose_true_next_state = candidates[max_prob_idx]
-        pred_next_state_eq_true_next_state = (
-            max_prob_candidate == transition.next_metadata
+        equivalent = self.ctx.state_equivalence or (lambda left, right: left == right)
+        pred_next_state_eq_true_next_state = equivalent(
+            max_prob_candidate, transition.next_metadata
         )
-        match (chose_true_next_state, pred_next_state_eq_true_next_state):
-            case (True, _):
-                # The model correctly chose the true next step,
-                # so nothing else matters and we can mark as successful
-                discriminative_accuracy = 1.0
-            case (False, True):
-                # The max probability candidate chosen by the model is equivalent
-                # to the true next state! This can happen in the case where the
-                # model perfectly predicts the true next state, or where one of the
-                # distractors is equivalent to the true next state (though this is rare)
-                discriminative_accuracy = 1.0
-            case (False, False):
-                # The model predicted a next state that was not the true next state
-                # and the chosen candidate is not equivalent to the true next state
-                # Therefore, this is a prediction error
-                discriminative_accuracy = 0.0
-            case _:
-                assert_never(_)
+        discriminative_accuracy = float(
+            chose_true_next_state or pred_next_state_eq_true_next_state
+        )
 
         # Calculate the recall of the true next state. This is the
         # rank at which the true next state appears in the candidate
@@ -342,7 +331,7 @@ class Evaluator(Generic[SymbolicStateT, ActionT]):
         equivalent_indices = [
             i
             for i, (candidate, _) in enumerate(candidates)
-            if candidate == transition.next_metadata
+            if equivalent(candidate, transition.next_metadata)
         ]
         # There should always be at least one (the true next state),
         # but guard defensively and raise if none found.
