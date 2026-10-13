@@ -117,9 +117,21 @@ class CrafterEvaluationFactory:
             str, list[SymbolicTransition[WorldState, CrafterAction]]
         ] = dict()
         for result in scenario_results:
-            test_transitions[result.scenario.name] = result.transitions
+            name = result.scenario.name
+            # Scenarios are keyed by name, so a duplicate would silently
+            # overwrite an earlier mechanic.
+            if name in test_transitions:
+                raise ValueError(f"Duplicate scenario name: {name}")
+            if not result.goal_test:
+                raise RuntimeError(
+                    f"Scenario {name} did not reach its goal: {result.goal_test.message}"
+                )
+            test_transitions[name] = result.transitions[:num_transitions_per_scenario]
 
-        logger.info(f"Collected {len(test_transitions)} test transitions")
+        logger.info(
+            f"Collected {sum(map(len, test_transitions.values()))} test transitions"
+            f" from {len(test_transitions)} scenarios"
+        )
 
         # 2. Instantiate the distractor generator with all mutators
         distractor_generator = CrafterDistractorGenerator(seed=self.policy_seed)

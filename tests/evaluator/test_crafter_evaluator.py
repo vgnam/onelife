@@ -1,3 +1,4 @@
+import pickle
 import rich
 from crafter_oo.functional_env import EnvConfig
 from crafter_oo.functional_env import transition as crafter_transition_fn
@@ -64,3 +65,46 @@ def test_evaluating_true_vs_null_world_model():
 
     rich.print("== Null World Model Performance ==")
     rich.print(null_wm_perf)
+
+
+def test_context_keeps_every_scenario():
+    """Each scenario gets its own key; successful and unsuccessful variants of
+    a mechanic must not overwrite each other."""
+    factory = CrafterEvaluationFactory(EnvConfig(size=(9, 9), view=(9, 9)))
+    context = factory.create_context(
+        EvaluationConfig(num_distractors=2), num_transitions_per_scenario=30
+    )
+
+    assert len(context.test_transitions) == 38
+    coal = context.test_transitions["collect_coal"][0]
+    no_coal = context.test_transitions["collect_coal_unsuccessful"][0]
+    assert coal.next_metadata.player.inventory.coal == 1
+    assert no_coal.next_metadata.player.inventory.coal == 0
+
+
+def test_context_caps_transitions_per_scenario():
+    factory = CrafterEvaluationFactory(EnvConfig(size=(9, 9), view=(9, 9)))
+    context = factory.create_context(
+        EvaluationConfig(num_distractors=2), num_transitions_per_scenario=2
+    )
+
+    assert max(map(len, context.test_transitions.values())) == 2
+
+
+def test_distractor_generation_does_not_advance_input_rng():
+    """World models read `prev_metadata.random_state`; generating distractors
+    must not change it, or later trials see a different input."""
+    factory = CrafterEvaluationFactory(EnvConfig(size=(9, 9), view=(9, 9)))
+    context = factory.create_context(
+        EvaluationConfig(num_distractors=10), num_transitions_per_scenario=30
+    )
+    transition = context.test_transitions["cow_movement"][0]
+    all_transitions = [
+        t for transitions in context.test_transitions.values() for t in transitions
+    ]
+    before = pickle.dumps(transition.prev_metadata.random_state.get_state())
+
+    context.distractor_generator(transition, all_transitions, num_distractors=10)
+
+    after = pickle.dumps(transition.prev_metadata.random_state.get_state())
+    assert before == after

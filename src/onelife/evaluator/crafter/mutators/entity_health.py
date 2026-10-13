@@ -15,7 +15,10 @@ class PlayerHealthMutator:
     def __call__(self, state: WorldState, action: ActionT) -> WorldState:
         mutated_state = state.model_copy(deep=True)
 
-        delta = state.random_state.randint(-3, 3)
+        # Do not draw from `state.random_state`: it is a cached property, so
+        # drawing from it advances the input state's RNG, which world models
+        # read when predicting. Range matches the former numpy randint(-3, 3).
+        delta = random.randint(-3, 2)
         mutated_state.player.health = mutated_state.player.health + delta
 
         # Clamp health between 0 and 10

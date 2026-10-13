@@ -725,7 +725,7 @@ class UnsuccessfulCollectCoalScenario:
 
     @property
     def name(self) -> str:
-        return "collect_coal"
+        return "collect_coal_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("coal")
@@ -796,7 +796,7 @@ class UnsuccessfulCollectDiamondScenario:
 
     @property
     def name(self) -> str:
-        return "collect_diamond"
+        return "collect_diamond_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("diamond")
@@ -861,7 +861,7 @@ class UnsuccessfulCollectIronScenario:
 
     @property
     def name(self) -> str:
-        return "collect_iron"
+        return "collect_iron_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("iron")
@@ -929,7 +929,7 @@ class UnsuccessfulCollectStoneScenario:
 
     @property
     def name(self) -> str:
-        return "collect_stone"
+        return "collect_stone_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("stone")
@@ -1089,7 +1089,7 @@ class UnsuccessfulEatPlantScenario:
 
     @property
     def name(self) -> str:
-        return "eat_plant"
+        return "eat_plant_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("grass")
@@ -1200,7 +1200,7 @@ class UnsuccessfulCraftIronPickaxeScenario:
 
     @property
     def name(self) -> str:
-        return "craft_iron_pickaxe"
+        return "craft_iron_pickaxe_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("table")
@@ -1273,7 +1273,7 @@ class UnsuccessfulCraftIronSwordScenario:
 
     @property
     def name(self) -> str:
-        return "craft_iron_sword"
+        return "craft_iron_sword_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("table")
@@ -1345,7 +1345,7 @@ class UnsuccessfulCraftStonePickaxeScenario:
 
     @property
     def name(self) -> str:
-        return "craft_stone_pickaxe"
+        return "craft_stone_pickaxe_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("table")
@@ -1413,7 +1413,7 @@ class UnsuccessfulCraftStoneSwordScenario:
 
     @property
     def name(self) -> str:
-        return "craft_stone_sword"
+        return "craft_stone_sword_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("table")
@@ -1480,7 +1480,7 @@ class UnsuccessfulCraftWoodenPickaxeScenario:
 
     @property
     def name(self) -> str:
-        return "craft_wooden_pickaxe"
+        return "craft_wooden_pickaxe_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("table")
@@ -1546,7 +1546,7 @@ class UnsuccessfulCraftWoodenSwordScenario:
 
     @property
     def name(self) -> str:
-        return "craft_wooden_sword"
+        return "craft_wooden_sword_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("table")
@@ -1610,7 +1610,7 @@ class UnsuccessfulPlaceFurnaceScenario:
 
     @property
     def name(self) -> str:
-        return "place_furnace"
+        return "place_furnace_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("grass")
@@ -1689,7 +1689,7 @@ class UnsuccessfulPlacePlantScenario:
 
     @property
     def name(self) -> str:
-        return "place_plant"
+        return "place_plant_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("grass")
@@ -1767,7 +1767,7 @@ class UnsuccessfulPlaceStoneScenario:
 
     @property
     def name(self) -> str:
-        return "place_stone"
+        return "place_stone_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("grass")
@@ -1835,7 +1835,7 @@ class UnsuccessfulPlaceTableScenario:
 
     @property
     def name(self) -> str:
-        return "place_table"
+        return "place_table_unsuccessful"
 
     def get_initial_state(self) -> WorldState:
         world, player, view = create_collection_scenario_base_state("grass")
